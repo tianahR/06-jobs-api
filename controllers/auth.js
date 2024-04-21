@@ -1,46 +1,52 @@
 //inport model
 const User = require('../models/User')
 const { StatusCodes } = require('http-status-codes')
-const { BadRequestError } = require('../errors')
+const { BadRequestError , UnauthenticatedError} = require('../errors')
 
-
-// const jwt = require('jsonwebtoken') //moved to the Users Schema
 
 const register = async (req, res) => {
-    
-//   const { name, email, password } = req.body
+     
+        //create User 
+        const user = await User.create({ ...req.body })
 
-//   const salt = await bcrypt.genSalt(10) // random bytes
-//   const hashedPassword = await bcrypt.hash(password,salt)
-//   const tempUser  = {name,email,password:hashedPassword}
+        const token = user.createJWT() //createJWT is method in User Schema
 
-//   if (!name || !email || !password || name === '' || password === '' || email ==='') {
-//     throw new BadRequestError('Please provide name, email and password')
-//   }
- 
-    //create User 
-   const user = await User.create({ ...req.body })
+        res
+        .status(StatusCodes.CREATED)
+        .json({ user:{name:user.name}, token })
+        
 
-// //    create token 
-// moved to User Schema
-//    const token = jwt.sign({UserId:user._id,name:user.name}, process.env.JWT_SECRET, {
-//     expiresIn: process.env.JWT_LIFETIME,
-//   });
- 
-const token = user.createJWT()
-
-  res
-  .status(StatusCodes.CREATED)
-  .json({ user:{name:user.name}, token })
-   
-
-//    res.status( StatusCodes.CREATED).json({user})
+        
 };
 
 
 
 const login = async (req, res) => {
-    res.send('login user')
+
+    const { email, password } = req.body
+
+    if (!email || !password || email==='' || password==='') {
+        throw new BadRequestError('Please provide email and password')
+    }
+
+    const user = await User.findOne({ email }) //email is unique
+    if (!user) {
+      throw new UnauthenticatedError('Invalid Credentials')
+    }
+
+    // compare password
+
+    const isPasswordCorrect = await user.comparePassword(password) //comparePassword is method in the User Schema
+    if (!isPasswordCorrect) {
+        throw new UnauthenticatedError('Invalid Credentials')
+    }
+  
+
+    //if user exists , create Token
+    const token = user.createJWT()
+    res.status(StatusCodes.OK).json({ user: { name: user.name }, token })
+
+
 };
 
 module.exports ={
