@@ -2,7 +2,9 @@
 const User = require('../models/User')
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError } = require('../errors')
-const bcrypt = require('bcryptjs')
+
+
+// const jwt = require('jsonwebtoken') //moved to the Users Schema
 
 const register = async (req, res) => {
     
@@ -19,8 +21,23 @@ const register = async (req, res) => {
     //create User 
    const user = await User.create({ ...req.body })
 
-   res.status( StatusCodes.CREATED).json({user})
+// //    create token 
+// moved to User Schema
+//    const token = jwt.sign({UserId:user._id,name:user.name}, process.env.JWT_SECRET, {
+//     expiresIn: process.env.JWT_LIFETIME,
+//   });
+ 
+const token = user.createJWT()
+
+  res
+  .status(StatusCodes.CREATED)
+  .json({ user:{name:user.name}, token })
+   
+
+//    res.status( StatusCodes.CREATED).json({user})
 };
+
+
 
 const login = async (req, res) => {
     res.send('login user')
