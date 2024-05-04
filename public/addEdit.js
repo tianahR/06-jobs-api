@@ -60,7 +60,7 @@ export const handleAddEdit = () => {
                         // a 201 is expected for a successful create
                         message.textContent = "The job entry was created.";
                         }
-                        
+
                         company.value = "";
                         position.value = "";
                         status.value = "pending";
@@ -144,4 +144,34 @@ export const showAddEdit = async (jobId) => {
   
       enableInput(true);
     }
+  };
+
+
+  export const showDelete = async (jobId) => {
+    enableInput(false);
+    try {
+      const response = await fetch(`/api/v1/jobs/${jobId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (response.status === 200) {
+        addingJob.textContent = "delete";
+        message.textContent = data.msg;
+        showJobs();
+      } else {
+        // might happen if the list has been updated since last display
+        message.textContent = "The jobs entry was not found";
+        showJobs();
+      }
+    } catch (err) {
+      console.log(err);
+      message.textContent = "A communications error has occurred.";
+      showJobs();
+    }
+    enableInput(true);
   };

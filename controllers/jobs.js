@@ -68,7 +68,8 @@ const deleteJob = async (req, res) => {
 
   
 
-  res.status(StatusCodes.OK).send()
+  //res.status(StatusCodes.OK).send()
+  res.status(StatusCodes.OK).json({ msg: "The entry was deleted." });
 }
 
 

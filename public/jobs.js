@@ -8,7 +8,7 @@ import {
   } from "./index.js";
 
   import { showLoginRegister } from "./loginRegister.js";
-  import { showAddEdit } from "./addEdit.js";
+  import { showAddEdit, showDelete } from "./addEdit.js";
   
   let jobsDiv = null;
   let jobsTable = null;
@@ -50,6 +50,11 @@ import {
         } else if (e.target.classList.contains("editButton")) {
             message.textContent = "";
             showAddEdit(e.target.dataset.id);
+          }
+          //to make delete buttom work
+          else if (e.target.classList.contains("deleteButton")) {
+            message.textContent = "";
+            showDelete(e.target.dataset.id);
           }
           
       }
